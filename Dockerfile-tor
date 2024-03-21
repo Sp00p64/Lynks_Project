@@ -1,0 +1,76 @@
+FROM debian
+
+RUN apt-get update && apt-get upgrade -y  && \
+    apt-get install -y git xz-utils build-essential wget gcc libcrypto++-dev && \
+    apt-get install -y gcc-multilib mingw-w64 && \
+    apt-get install -y make autoconf pkg-config-mingw-w64-x86-64 && \
+    apt-get install -y pkg-config-mingw-w64-i686 gcc-mingw-w64-i686 && \
+    apt-get install -y binutils-mingw-w64-i686 binutils-mingw-w64-x86-64 && \
+    apt-get install -y libz-mingw-w64 libz-mingw-w64-dev pkg-config-mingw-w64-i686 && \
+    apt-get install -y pkg-config-mingw-w64-x86-64 libgcrypt-mingw-w64-dev && \
+    apt-get install -y binutils-mingw-w64 gcc-mingw-w64 pkg-config-mingw-w64-i686 && \
+    apt-get install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 g++-mingw-w64 python3
+
+RUN wget https://zlib.net/current/zlib.tar.gz && \
+    wget https://github.com/libevent/libevent/releases/download/release-2.1.11-stable/libevent-2.1.11-stable.tar.gz  && \
+    wget https://www.openssl.org/source/openssl-1.0.2j.tar.gz && \
+    wget https://dist.torproject.org/tor-0.4.8.9.tar.gz
+
+RUN tar xfv zlib.tar.gz && \
+    tar xfv libevent-*.tar.gz && \
+    tar xfv openssl-*.tar.gz && \
+    tar xfv tor-*.tar.gz
+
+ENV LDFLAGS="-L/usr/x86_64-w64-mingw32/lib/"
+ENV CHOST="x86_64-w64-mingw32"
+ENV PREFIXDIR="/zlib-1.3.1/win64-cross"
+
+WORKDIR /zlib-1.3.1
+
+RUN make -f win32/Makefile.gcc BINARY_PATH=$PREFIXDIR/bin INCLUDE_PATH=$PREFIXDIR/include LIBRARY_PATH=$PREFIXDIR/lib SHARED_MODE=1 PREFIX=x86_64-w64-mingw32- install
+
+WORKDIR /libevent-2.1.11-stable
+
+RUN ./configure --prefix="/libevent-2.1.11-stable/install" --enable-static --disable-shared --host=x86_64-w64-mingw32 && \
+    make && make install
+
+WORKDIR /openssl-1.0.2j
+
+ENV CFLAGS="-I/usr/x86_64-w64-mingw32/lib/"
+ENV LDFLAGS="-static -static-libgcc -L/usr/x86_64-w64-mingw32/lib/" 
+
+RUN ./Configure no-shared no-zlib no-asm --cross-compile-prefix=x86_64-w64-mingw32- --prefix="/openssl-1.0.2j/install/" -static -static-libgcc mingw64 && \
+    make && make install
+
+WORKDIR /tor-0.4.8.9
+
+ENV LIBS="-lcrypt32"
+ENV LDFLAGS="-static -static-libgcc -L/usr/x86_64-w64-mingw32/lib/"
+ENV CFLAGS="-I/openssl-1.0.2j/install/lib/include -I/zlib-1.3.1 -I/libevent-2.1.11-stable/install/include/"
+
+RUN ./configure --host=x86_64-w64-mingw32 --disable-gcc-hardening --prefix="$HOME/tor/install" --with-libevent-dir="/libevent-2.1.11-stable/install/" --with-openssl-dir="/openssl-1.0.2j/install" --with-zlib-dir="/zlib-1.3.1" --enable-static-tor && \ 
+    make && make install
+
+WORKDIR /root/tor/install/bin
+
+#Commented because if we compress the exe and then convert to shellcode it crashes the process in which we injected
+
+# RUN wget https://github.com/upx/upx/releases/download/v4.2.2/upx-4.2.2-amd64_linux.tar.xz && \
+#     tar -xvf upx-*
+    
+# RUN chmod +x upx-4.2.2-amd64_linux/upx && \
+#     cp upx-4.2.2-amd64_linux/upx /root/tor/install/bin
+
+# RUN ./upx -9 tor.exe
+
+WORKDIR /
+
+RUN git clone http://github.com/thewover/donut.git
+
+WORKDIR /donut
+
+RUN make
+
+RUN ./donut -i /root/tor/install/bin/tor.exe -z 2 && \
+    apt install -y zip && \
+    zip loader.zip loader.bin 

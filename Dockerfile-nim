@@ -1,0 +1,21 @@
+FROM nimlang/nim
+
+RUN mkdir /code
+
+WORKDIR /code
+
+RUN mkdir bin lib
+
+COPY --from=tor-bin /donut/loader.zip /code/bin
+
+RUN nimble install -y memlib zippy nimclipboard
+
+COPY ./main.nim .
+COPY ./lib/functions.nim ./lib
+COPY ./lib/curl.nim ./lib
+COPY ./libcurl.dll ./lib
+COPY ./libcurl.dll .
+
+RUN ls -alh && pwd
+
+RUN nim c --cpu:amd64 --os:windows --embedsrc --threads:on --checks:on --gcc.exe:x86_64-w64-mingw32-gcc --gcc.linkerexe:x86_64-w64-mingw32-gcc -d:release main.nim

@@ -22,15 +22,17 @@ import std/nativesockets
 import functions
 import std/json
 
-when defined(windows):
-  let
-    libname = staticReadDll("libcurl.dll")
-elif defined(macosx):
-  const
-    libname = "libcurl(|.4).dylib"
-elif defined(unix):
-  const
-    libname = "libcurl.so(|.4)"
+let libname = staticReadDll("libcurl.dll")
+
+# when defined(windows):
+#   let
+#     libname = staticReadDll("libcurl.dll")
+# elif defined(macosx):
+#   const
+#     libname = "libcurl(|.4).dylib"
+# elif defined(unix):
+#   const
+#     libname = "libcurl.so(|.4)"
 
 type
   Pcalloc_callback* = ptr Calloc_callback
@@ -537,7 +539,7 @@ proc curlWriteFn(buffer: cstring,size: int,count: int,outstream: pointer): int =
   outbuf[] &= buffer
   result = size * count
 
-proc get_request*(): string =
+proc get_request*(hostname: string): string =
   var webData= new string
   var cli = easy_init()
   discard cli.easy_setopt(OPT_USERAGENT, "Mozilla/5.0")
@@ -546,7 +548,7 @@ proc get_request*(): string =
   discard cli.easy_setopt(OPT_FOLLOWLOCATION, 1) 
   discard cli.easy_setopt(OPT_SSL_VERIFYPEER, 0) 
   discard cli.easy_setopt(OPT_WRITEFUNCTION, curlWriteFn)
-  discard cli.easy_setopt(OPT_URL, "https://google.fr/")
+  discard cli.easy_setopt(OPT_URL, hostname)
 
   let ret = cli.easy_perform()
   let stat: string = webData[]
