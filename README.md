@@ -23,7 +23,7 @@ Lynks is a WIP advanced POC of a C&C malware written in NIM over Tor with a pyth
 
 
 - Install NIM
-- Install necessery modules : 
+- Install necessary modules : 
     
       nimble install -y memlib zippy nimclipboard
 
@@ -46,3 +46,7 @@ Lynks is a WIP advanced POC of a C&C malware written in NIM over Tor with a pyth
 
 Thanks to Araq 
 [Libcurl wrapper in NIM](https://github.com/Araq/libcurl/tree/master) I had a starting point but I needed to add the websocket implementation
+
+Also thanks to this project : 
+[build_tor_static](https://github.com/fugitivus/tor-static/blob/master/tor-static-linux.sh) 
+I had a way to cross-compile tor, i just had to change some settings and then dockerize it
