@@ -9,6 +9,7 @@ import net
 import osproc
 import nimclipboard/libclipboard
 import os
+
 type ProcessEntry32W = object
   dwSize: DWORD
   cntUsage: DWORD

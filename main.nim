@@ -8,6 +8,7 @@ import std/strutils
 #     quit(1)
 # else:
 #     echo "websocket_request_init() success"
+
 var has_already_injected = 0
 while true:
     sleep 1000

