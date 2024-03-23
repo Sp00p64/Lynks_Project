@@ -8,7 +8,7 @@ from prompt_toolkit.styles import Style
 import json
 style = Style.from_dict({
     # User input (default text).
-    '':          '#b3b3b3',  # Soft grey for neutral text, enhancing readability against most backgrounds
+    '':          '#ffffff',  # Soft grey for neutral text, enhancing readability against most backgrounds
 
     # Prompt.
     'username': '#8a56e2',  # Soft purple for usernames, offering a friendly and distinguishable appearance
@@ -25,19 +25,24 @@ class ShellControlClient:
         self.wait_time = 10
         self.client_connected = False
         self.client_username = None
+
     def on_message(self, ws, message):
         try:
             json.loads(message)
             message_is_json = True
         except Exception as error:
-            print(error)
+            # print("Error is ")
+            # print(error)
             message_is_json = False
+
         if message == "[!] No client listening":
             print("[*] No client is yet available at this time...")
+
         elif "[*] Client is listening".lower() in message.lower():
             print("")
             print("[*] Client has just connected")
             self.client_connected = True
+            
         elif message_is_json:
             json_message = json.loads(message)
             try:
@@ -74,14 +79,14 @@ class ShellControlClient:
             while True:
                 if self.client_connected and self.message_received:
                     message = [
-                        ('class:username', self.client_username if self.client_username != None else '?'),
-                        ('class:colon',    ':'),
-                        ('class:path',     '/user/john'),
-                        ('class:pound',    '# '),
+                        ('class:username', self.client_username.upper() if self.client_username != None else '?'),
+                        # ('class:colon',    ':'),
+                        # ('class:path',     '/user/john'),
+                        ('class:pound',    ' > '),
                     ]
                     command = prompt(message, style=style)
                     if len(command) > 0:
-                        print("command is " + command)
+                        #print("command is " + command)
                         self.message_received = False
                         # if command:
                         #     exit()

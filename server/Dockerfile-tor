@@ -1,0 +1,11 @@
+FROM debian
+
+RUN apt update && \
+    apt install -y tor
+
+COPY ./tor/torrc /etc/tor/torrc
+COPY ./tor/entrypoint.sh .
+
+RUN chmod +x entrypoint.sh
+
+ENTRYPOINT ["./entrypoint.sh"]

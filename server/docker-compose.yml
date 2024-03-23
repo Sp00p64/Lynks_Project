@@ -1,0 +1,36 @@
+---
+services:
+  tor:
+    container_name: tor
+    build: 
+      context: .
+      dockerfile: Dockerfile-tor
+    volumes:
+      - server_hidden_service:/var/lib/tor/hidden_service/
+    networks:
+      - my_network
+  flask:
+    container_name: flask
+    hostname: flask
+    ports:
+      - 8080:4242
+    build:
+      context: .
+      dockerfile: Dockerfile-server
+    networks:
+      - my_network
+  wetty:
+    image: wettyoss/wetty
+    command: --ssh-host=flask --ssh-user=root --command="python3 /Code/shell.py"
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - my_network
+networks:
+  my_network:
+    external: true
+
+volumes:
+  server_hidden_service:
+...

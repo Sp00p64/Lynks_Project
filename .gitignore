@@ -1,4 +1,5 @@
 main.exe
+/server/tor/hidden_service
 /bin/main.exe
 /bin/tor.exe
 /bin/UrbanBishop.exe

@@ -61,4 +61,4 @@ def shell_control(ws):
         control_connections.remove(ws)
         #broadcast_to_shells("[*] A control client has disconnected.")
 if __name__ == '__main__':
-    app.run(debug=True, port=4242)
+    app.run(debug=True, port=4242,host="0.0.0.0")
