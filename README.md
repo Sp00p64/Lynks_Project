@@ -18,6 +18,14 @@ Lynks is a WIP advanced POC of a C&C malware written in NIM over Tor with a pyth
 
 -  <b>Speed </b> : Communications via requests over TOR usually takes a lot of time because of all the hops a request has to go through. To solve this issue my implementation of libcurl establishes a WebSocket over the hidden service. Thanks to this the establishment of the session is slow but once established the shell is quite responsive and fast for a TOR communication
 
+## Demo
+
+Launching client:
+![client](./doc/client.png)
+
+Control server:
+![server](./doc/server.gif)
+
 ## How to use ? :
 (For now the malware can only be built on windows and deployed on windows machines, linux support is coming soon)
 
@@ -35,6 +43,7 @@ Lynks is a WIP advanced POC of a C&C malware written in NIM over Tor with a pyth
 - Now go to localhost:3000/wetty inside your browser to be able to control the client
 
 ### Client
+
 - Install NIM
 - Install necessary modules : 
 
