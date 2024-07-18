@@ -1,5 +1,8 @@
 # Lynks Project
 
+![lynx](./doc/lynks.png)
+
+
 ## DISCLAIMER
 
 This is a project because i'm passionate about malware dev, this should absolutely not be used on a computer without it's owner permission, and is just a POC which only allows for a rudimentary shell.
