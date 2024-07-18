@@ -1,6 +1,6 @@
 # Lynks Project
 <p align="center">
-<img src="./doc/lynks.png" alt="drawing" width="300"/>
+<img src="./doc/lynks.png" alt="drawing" width="400"/>
 </p>
 
 ## DISCLAIMER
