@@ -1,7 +1,7 @@
 # Lynks Project
-
-![lynx](./doc/lynks.png)
-
+<p align="center">
+<img src="./doc/lynks.png" alt="drawing" width="300"/>
+</p>
 
 ## DISCLAIMER
 
